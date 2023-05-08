@@ -1,6 +1,6 @@
-import type { Signer } from '@ethersproject/abstract-signer';
 import type { Web3Provider } from '@ethersproject/providers';
 import type { StaticToken } from '@lifi/sdk';
+import type { ExtendedWalletClient } from '@lifi/wallet-management';
 import {
   LiFiWalletManagement,
   readActiveWallets,
@@ -9,7 +9,6 @@ import {
   switchChainAndAddToken as walletAgnosticAddToken,
   switchChain as walletAgnosticSwitchChain,
 } from '@lifi/wallet-management';
-import type { Wallet } from '@lifi/wallet-management/types';
 import type { FC, PropsWithChildren } from 'react';
 import {
   createContext,
@@ -21,6 +20,7 @@ import {
 } from 'react';
 import { useWidgetConfig } from '../WidgetProvider';
 import type { WalletAccount, WalletContextProps } from './types';
+import type { Signer } from '@ethersproject/abstract-signer';
 
 const liFiWalletManagement = new LiFiWalletManagement();
 
@@ -46,42 +46,51 @@ export const useWallet = (): WalletContextProps => useContext(WalletContext);
 export const WalletProvider: FC<PropsWithChildren> = ({ children }) => {
   const { walletManagement } = useWidgetConfig();
   const [account, setAccount] = useState<WalletAccount>({});
-  const [currentWallet, setCurrentWallet] = useState<Wallet | undefined>();
+  const [currentWallet, setCurrentWallet] = useState<
+    ExtendedWalletClient | undefined
+  >();
 
   useEffect(() => {
-    const autoConnect = async () => {
-      const persistedActiveWallets = readActiveWallets();
-      const activeWallets = supportedWallets.filter((wallet) =>
-        persistedActiveWallets.some(
-          (perstistedWallet) => perstistedWallet.name === wallet.name,
-        ),
-      );
-      if (!activeWallets.length) {
-        return;
-      }
-      await liFiWalletManagement.autoConnect(activeWallets);
-      activeWallets[0].on('walletAccountChanged', handleWalletUpdate);
-      handleWalletUpdate(activeWallets[0]);
-    };
-    autoConnect();
-  }, []);
+    console.log(account);
+  }, [account.chainId, account.address, account.isActive]);
 
-  const handleWalletUpdate = async (wallet?: Wallet) => {
+  useEffect(() => {}, [currentWallet]);
+
+  // useEffect(() => {
+  //   const autoConnect = async () => {
+  //     const persistedActiveWallets = readActiveWallets();
+  //     const activeWallets = supportedWallets.filter((wallet) =>
+  //       persistedActiveWallets.some(
+  //         (perstistedWallet) => perstistedWallet.name === wallet.name,
+  //       ),
+  //     );
+  //     if (!activeWallets.length) {
+  //       return;
+  //     }
+  //     await liFiWalletManagement.autoConnect(activeWallets);
+  //     activeWallets[0].on('walletAccountChanged', handleWalletUpdate);
+  //     handleWalletUpdate(activeWallets[0]);
+  //   };
+  //   autoConnect();
+  // }, []);
+
+  const handleWalletUpdate = async (wallet?: ExtendedWalletClient) => {
     setCurrentWallet(wallet);
-    const account = await extractAccountFromSigner(wallet?.account?.signer);
+    const account = await extractAccountFromExtendedClient(wallet);
     setAccount(account);
   };
 
   const connect = useCallback(
-    async (wallet: Wallet) => {
+    async (wallet: ExtendedWalletClient) => {
       if (walletManagement) {
-        const signer = await walletManagement.connect();
-        const account = await extractAccountFromSigner(signer);
+        await walletManagement.connect();
+        const account = await extractAccountFromExtendedClient(wallet);
         setAccount(account);
         return;
       }
       await liFiWalletManagement.connect(wallet);
-      wallet.on('walletAccountChanged', handleWalletUpdate);
+      // wallet.on('walletAccountChanged', handleWalletUpdate);
+      console.log('Widget.WalletProvider.connect', wallet);
       handleWalletUpdate(wallet);
     },
     [walletManagement],
@@ -95,7 +104,7 @@ export const WalletProvider: FC<PropsWithChildren> = ({ children }) => {
     }
     if (currentWallet) {
       await liFiWalletManagement.disconnect(currentWallet);
-      currentWallet.removeAllListeners();
+      // currentWallet.removeAllListeners();
       handleWalletUpdate(undefined);
     }
   }, [walletManagement, currentWallet]);
@@ -105,7 +114,7 @@ export const WalletProvider: FC<PropsWithChildren> = ({ children }) => {
       try {
         if (walletManagement?.switchChain) {
           const signer = await walletManagement.switchChain(chainId);
-          const account = await extractAccountFromSigner(signer);
+          const account = await extractAccountFromExtendedClient(signer);
           setAccount(account);
         } else if (!currentWallet) {
           const provider = account.signer?.provider as Web3Provider;
@@ -173,7 +182,7 @@ export const WalletProvider: FC<PropsWithChildren> = ({ children }) => {
   useEffect(() => {
     if (walletManagement) {
       const updateAccount = async () => {
-        const account = await extractAccountFromSigner(
+        const account = await extractAccountFromExtendedClient(
           walletManagement?.signer,
         );
         setAccount(account);
@@ -199,13 +208,16 @@ export const WalletProvider: FC<PropsWithChildren> = ({ children }) => {
   );
 };
 
-export const extractAccountFromSigner = async (signer?: Signer) => {
+export const extractAccountFromExtendedClient = async (
+  extendedClient?: ExtendedWalletClient,
+) => {
   try {
+    const address = (await extendedClient?.getAddresses())?.[0];
     return {
-      address: await signer?.getAddress(),
-      isActive: (signer && !!(await signer.getAddress()) === null) || !!signer,
-      signer,
-      chainId: await signer?.getChainId(),
+      address: address,
+      isActive: !!address,
+      signer: extendedClient as unknown as Signer,
+      chainId: await extendedClient?.getChainId(),
     };
   } catch (error) {
     console.error(error);

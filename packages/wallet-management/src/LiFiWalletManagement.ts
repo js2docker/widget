@@ -1,19 +1,18 @@
 import events from 'events';
-import type { Wallet } from './types';
 import {
   addToActiveWallets,
   addToDeactivatedWallets,
   removeFromActiveWallets,
   removeFromDeactivatedWallets,
 } from './walletPersistance';
+import type { ExtendedWalletClient } from './clients/extendedClient';
 
 export class LiFiWalletManagement extends events.EventEmitter {
-  connectedWallets: Wallet[] = [];
+  connectedWallets: ExtendedWalletClient[] = [];
 
-  public connect = async (wallet: Wallet) => {
+  public connect = async (wallet: ExtendedWalletClient) => {
     try {
       await wallet.connect();
-      wallet.addListener('walletAccountChanged', this.handleAccountDataChange);
       this.connectedWallets.unshift(wallet);
       removeFromDeactivatedWallets({
         address: wallet.account?.address || '',
@@ -28,21 +27,20 @@ export class LiFiWalletManagement extends events.EventEmitter {
     }
   };
 
-  public async autoConnect(wallets: Wallet[]) {
-    for (const wallet of wallets) {
-      if (wallet.autoConnect) {
-        await wallet.autoConnect();
-        wallet.addListener(
-          'walletAccountChanged',
-          this.handleAccountDataChange,
-        );
-        this.connectedWallets.unshift(wallet);
-      }
-    }
-  }
+  // public async autoConnect(wallets: ExtendedWalletClient[]) {
+  //   for (const wallet of wallets) {
+  //     if (wallet.autoConnect) {
+  //       await wallet.autoConnect();
+  //       wallet.addListener(
+  //         'walletAccountChanged',
+  //         this.handleAccountDataChange,
+  //       );
+  //       this.connectedWallets.unshift(wallet);
+  //     }
+  //   }
+  // }
 
-  public disconnect = async (wallet: Wallet) => {
-    wallet.removeAllListeners();
+  public disconnect = async (wallet: ExtendedWalletClient) => {
     removeFromActiveWallets({
       address: wallet.account?.address || '',
       name: wallet.name,
@@ -51,8 +49,6 @@ export class LiFiWalletManagement extends events.EventEmitter {
       address: wallet.account?.address || '',
       name: wallet.name,
     });
-
-    wallet.disconnect();
   };
 
   private handleAccountDataChange() {

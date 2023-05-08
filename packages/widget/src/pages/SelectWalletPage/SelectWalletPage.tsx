@@ -1,5 +1,5 @@
 import { supportedWallets } from '@lifi/wallet-management';
-import type { Wallet } from '@lifi/wallet-management';
+import type { ExtendedWalletClient } from '@lifi/wallet-management';
 import {
   Avatar,
   Button,
@@ -24,7 +24,7 @@ export const SelectWalletPage = () => {
   const { connect } = useWallet();
   const [walletIdentity, setWalletIdentity] = useState<{
     show: boolean;
-    wallet?: Wallet;
+    wallet?: ExtendedWalletClient;
   }>({ show: false });
 
   // separate into installed and not installed wallets
@@ -44,7 +44,7 @@ export const SelectWalletPage = () => {
   };
 
   const handleConnect = useCallback(
-    async (wallet: Wallet) => {
+    async (wallet: ExtendedWalletClient) => {
       const identityCheckPassed = wallet.installed();
       if (!identityCheckPassed) {
         setWalletIdentity({
@@ -67,22 +67,24 @@ export const SelectWalletPage = () => {
           paddingRight: 1.5,
         }}
       >
-        {[...installedWallets, ...notInstalledWallets].map((wallet: Wallet) => (
-          <ListItemButton
-            key={wallet.name}
-            onClick={() => handleConnect(wallet)}
-          >
-            <ListItemAvatar>
-              <Avatar
-                src={(wallet.icon as any).src || wallet.icon}
-                alt={wallet.name}
-              >
-                {wallet.name[0]}
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText primary={wallet.name} />
-          </ListItemButton>
-        ))}
+        {[...installedWallets, ...notInstalledWallets].map(
+          (wallet: ExtendedWalletClient) => (
+            <ListItemButton
+              key={wallet.name}
+              onClick={() => handleConnect(wallet)}
+            >
+              <ListItemAvatar>
+                <Avatar
+                  src={(wallet.icon as any).src || wallet.icon}
+                  alt={wallet.name}
+                >
+                  {wallet.name[0]}
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText primary={wallet.name} />
+            </ListItemButton>
+          ),
+        )}
       </List>
       <Dialog open={walletIdentity.show} onClose={closeDialog}>
         <DialogContent>

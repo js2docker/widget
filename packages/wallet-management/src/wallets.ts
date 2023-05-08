@@ -1,11 +1,11 @@
 import { supportedChains } from '@lifi/sdk';
-import { InjectedConnector } from './connectors/injectedConnector';
-import { WalletConnectConnector } from './connectors/walletConnectConnector';
-import type { Wallet } from './types';
 import { ProviderIdentityFlag } from './types';
 import { walletIcons } from './walletIcons';
+import type { ExtendedWalletClient } from './clients/extendedClient';
+import { createExtendedWalletClient } from './clients/extendedClient';
+import WalletConnectProvider from '@walletconnect/ethereum-provider';
 
-const defaultWallet: Wallet = new InjectedConnector({
+const defaultWallet: ExtendedWalletClient = createExtendedWalletClient({
   // unknown Default wallet that injects as metamask but is not metamask
   name: 'Default Wallet',
   installed: () =>
@@ -14,33 +14,33 @@ const defaultWallet: Wallet = new InjectedConnector({
   icon: walletIcons.placeholder,
 });
 
-const metamask: Wallet = new InjectedConnector({
+const metamask: ExtendedWalletClient = createExtendedWalletClient({
   name: 'MetaMask',
   installed: () => !!(window as any)?.ethereum?.[ProviderIdentityFlag.MetaMask],
   icon: walletIcons.metamask,
 });
 
-const walletConnect: Wallet = new WalletConnectConnector({
+const walletConnect: ExtendedWalletClient = createExtendedWalletClient({
   name: 'Wallet Connect',
   installed: () => true,
   icon: walletIcons.walletConnect,
-  rpc: Object.fromEntries(
-    supportedChains.map((chain) => {
-      return [chain.id, chain.metamask.rpcUrls[0] || ''];
-    }),
-  ),
+  provider: new WalletConnectProvider({
+    rpc: Object.fromEntries(
+      supportedChains.map((chain) => {
+        return [chain.id, chain.metamask.rpcUrls[0] || ''];
+      }),
+    ),
+  }),
 });
 
-const frontier: Wallet = new InjectedConnector(
-  {
-    name: 'Frontier',
-    installed: () => (window as any).frontier,
-    icon: walletIcons.frontier,
-  },
-  (window as any).frontier?.ethereum,
-);
+const frontier: ExtendedWalletClient = createExtendedWalletClient({
+  name: 'Frontier',
+  installed: () => (window as any).frontier,
+  icon: walletIcons.frontier,
+  provider: (window as any).frontier?.ethereum,
+});
 
-const brave: Wallet = new InjectedConnector({
+const brave: ExtendedWalletClient = createExtendedWalletClient({
   name: 'Brave',
   installed: () =>
     // eslint-disable-next-line no-underscore-dangle
@@ -48,108 +48,98 @@ const brave: Wallet = new InjectedConnector({
   icon: walletIcons.brave,
 });
 
-const mathWallet: Wallet = new InjectedConnector({
+const mathWallet: ExtendedWalletClient = createExtendedWalletClient({
   name: 'MathWallet',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.MathWallet],
   icon: walletIcons.mathwallet,
 });
 
-const tallyho: Wallet = new InjectedConnector(
-  {
-    name: 'Taho',
-    installed: () =>
-      (window as any).tally &&
-      (window as any).tally?.[ProviderIdentityFlag.TallyHo],
-    icon: walletIcons.tallyho,
-  },
-  (window as any).tally,
-);
+const tallyho: ExtendedWalletClient = createExtendedWalletClient({
+  name: 'Taho',
+  installed: () =>
+    (window as any).tally &&
+    (window as any).tally?.[ProviderIdentityFlag.TallyHo],
+  icon: walletIcons.tallyho,
+  provider: (window as any).tally,
+});
 
-const blockWallet: Wallet = new InjectedConnector({
+const blockWallet: ExtendedWalletClient = createExtendedWalletClient({
   name: 'BlockWallet',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.BlockWallet],
   icon: walletIcons.blockwallet,
 });
 
-const binance: Wallet = new InjectedConnector(
-  {
-    name: 'Binance',
-    installed: () => (window as any).BinanceChain,
-    icon: walletIcons.binance,
-  },
-  (window as any).BinanceChain,
-);
+const binance: ExtendedWalletClient = createExtendedWalletClient({
+  name: 'Binance',
+  installed: () => (window as any).BinanceChain,
+  icon: walletIcons.binance,
+  provider: (window as any).BinanceChain,
+});
 
-const coinbase: Wallet = new InjectedConnector(
-  {
-    name: 'Coinbase',
-    installed: () => (window as any).coinbaseWalletExtension,
-    icon: walletIcons.coinbase,
-  },
-  (window as any).coinbaseWalletExtension,
-);
+const coinbase: ExtendedWalletClient = createExtendedWalletClient({
+  name: 'Coinbase',
+  installed: () => (window as any).coinbaseWalletExtension,
+  icon: walletIcons.coinbase,
+  provider: (window as any).coinbaseWalletExtension,
+});
 
-const trust: Wallet = new InjectedConnector(
-  {
-    name: 'Trust',
-    installed: () => (window as any).trustWallet,
-    icon: walletIcons.trust,
-  },
-  (window as any).trustWallet,
-);
+const trust: ExtendedWalletClient = createExtendedWalletClient({
+  name: 'Trust',
+  installed: () => (window as any).trustWallet,
+  icon: walletIcons.trust,
+  provider: (window as any).trustWallet,
+});
 
-const status: Wallet = new InjectedConnector({
+const status: ExtendedWalletClient = createExtendedWalletClient({
   name: 'Status',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.Status],
   icon: walletIcons.status,
 });
 
-const alphawallet: Wallet = new InjectedConnector({
+const alphawallet: ExtendedWalletClient = createExtendedWalletClient({
   name: 'AlphaWallet',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.AlphaWallet],
   icon: walletIcons.alphawallet,
 });
 
-const atoken: Wallet = new InjectedConnector({
+const atoken: ExtendedWalletClient = createExtendedWalletClient({
   name: 'AToken',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.AToken],
   icon: walletIcons.atoken,
 });
 
-const apex: Wallet = new InjectedConnector({
-  name: 'Apex Wallet',
+const apex: ExtendedWalletClient = createExtendedWalletClient({
+  name: 'Apex ExtendedWalletClient',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.ApexWallet],
   icon: walletIcons.placeholder,
 });
 
-const bitpie: Wallet = new InjectedConnector({
+const bitpie: ExtendedWalletClient = createExtendedWalletClient({
   name: 'Bitpie',
   installed: () => (window as any).ethereum?.Bitpie,
   icon: walletIcons.bitpie,
 });
 
-const dcent: Wallet = new InjectedConnector({
+const dcent: ExtendedWalletClient = createExtendedWalletClient({
   name: 'Dcent',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.Dcent],
   icon: walletIcons.dcent,
 });
 
-const frame: Wallet = new InjectedConnector(
-  {
-    name: 'Frame',
-    installed: () => (window as any).frame,
-    icon: walletIcons.frame,
-  },
-  (window as any).frame,
-);
+const frame: ExtendedWalletClient = createExtendedWalletClient({
+  name: 'Frame',
+  installed: () => (window as any).frame,
+  icon: walletIcons.frame,
+  provider: (window as any).frame,
+});
 
-const huobiwallet: Wallet = new InjectedConnector({
+const huobiwallet: ExtendedWalletClient = createExtendedWalletClient({
   name: 'HuobiWallet',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.HuobiWallet],
   icon: walletIcons.huobiwallet,
 });
 
-const hyperpay: Wallet = new InjectedConnector({
+const hyperpay: ExtendedWalletClient = createExtendedWalletClient({
   name: 'HyperPay',
   // Note: The property `hiWallet` is as of now the only known way of identifying hyperpay
   // wallet as it is a direct clone of metamask. `checkProviderIdentity` implementation is subject to
@@ -158,41 +148,39 @@ const hyperpay: Wallet = new InjectedConnector({
   icon: walletIcons.hyperpay,
 });
 
-const imtoken: Wallet = new InjectedConnector({
+const imtoken: ExtendedWalletClient = createExtendedWalletClient({
   name: 'ImToken',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.ImToken],
   icon: walletIcons.imtoken,
 });
 
-const liquality: Wallet = new InjectedConnector(
-  {
-    name: 'Liquality',
-    installed: () => (window as any).liquality,
-    icon: walletIcons.liquality,
-  },
-  (window as any).liquality,
-);
+const liquality: ExtendedWalletClient = createExtendedWalletClient({
+  name: 'Liquality',
+  installed: () => (window as any).liquality,
+  icon: walletIcons.liquality,
+  provider: (window as any).liquality,
+});
 
-const meetone: Wallet = new InjectedConnector({
+const meetone: ExtendedWalletClient = createExtendedWalletClient({
   name: 'MeetOne',
   installed: () =>
     (window as any).ethereum?.[ProviderIdentityFlag.MeetOne] === 'MEETONE',
   icon: walletIcons.meetone,
 });
 
-const mykey: Wallet = new InjectedConnector({
+const mykey: ExtendedWalletClient = createExtendedWalletClient({
   name: 'MyKey',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.MyKey],
   icon: walletIcons.mykey,
 });
 
-const ownbit: Wallet = new InjectedConnector({
+const ownbit: ExtendedWalletClient = createExtendedWalletClient({
   name: 'OwnBit',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.OwnBit],
   icon: walletIcons.ownbit,
 });
 
-const tokenpocket: Wallet = new InjectedConnector({
+const tokenpocket: ExtendedWalletClient = createExtendedWalletClient({
   name: 'TokenPocket',
   installed: () =>
     (window as any).ethereum?.[ProviderIdentityFlag.TokenPocket] &&
@@ -200,26 +188,26 @@ const tokenpocket: Wallet = new InjectedConnector({
   icon: walletIcons.tokenpocket,
 });
 
-const xdefi: Wallet = new InjectedConnector({
+const xdefi: ExtendedWalletClient = createExtendedWalletClient({
   name: 'XDEFI',
   // eslint-disable-next-line dot-notation
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.XDEFI],
   icon: walletIcons.xdefi,
 });
 
-const oneInch: Wallet = new InjectedConnector({
+const oneInch: ExtendedWalletClient = createExtendedWalletClient({
   name: 'OneInch',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.OneInch],
   icon: walletIcons.oneInch,
 });
 
-const tokenary: Wallet = new InjectedConnector({
+const tokenary: ExtendedWalletClient = createExtendedWalletClient({
   name: 'Tokenary',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.Tokenary],
   icon: walletIcons.tokenary,
 });
 
-const exodus: Wallet = new InjectedConnector({
+const exodus: ExtendedWalletClient = createExtendedWalletClient({
   name: 'Exodus',
   installed: () => (window as any).ethereum?.[ProviderIdentityFlag.Exodus],
   icon: walletIcons.exodus,
