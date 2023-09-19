@@ -1,89 +1,54 @@
-<div align="center">
+<p align="center">
+  <a href="https://www.gatsbyjs.com/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts">
+    <img alt="Gatsby" src="https://www.gatsbyjs.com/Gatsby-Monogram.svg" width="60" />
+  </a>
+</p>
+<h1 align="center">
+  Gatsby minimal TypeScript starter
+</h1>
 
-[![license](https://img.shields.io/badge/license-Apache%202-blue)](/LICENSE.md)
-[![npm latest package](https://img.shields.io/npm/v/@lifi/widget/latest.svg)](https://www.npmjs.com/package/@lifi/widget)
-[![npm downloads](https://img.shields.io/npm/dm/@lifi/widget.svg)](https://www.npmjs.com/package/@lifi/widget)
-[![Crowdin](https://badges.crowdin.net/lifi-widget/localized.svg)](https://crowdin.com/project/lifi-widget)
-[![Follow on Twitter](https://img.shields.io/twitter/follow/lifiprotocol.svg?label=follow+LI.FI)](https://twitter.com/lifiprotocol)
+## 🚀 Quick start
 
-</div>
+1.  **Create a Gatsby site.**
 
-<h1 align="center">LI.FI Widget</h1>
+    Use the Gatsby CLI to create a new site, specifying the minimal TypeScript starter.
 
-This repository contains LI.FI Widget and supporting libraries.
+    ```shell
+    # create a new Gatsby site using the minimal TypeScript starter
+    npm init gatsby
+    ```
 
-- [_LI.FI Widget_](https://li.fi/widget/) for cross-chain bridging and swapping. It will drive your multi-chain strategy and attract new users from everywhere.
+2.  **Start developing.**
 
-- [_LI.FI Wallet Management_](https://www.npmjs.com/package/@lifi/wallet-management) is our library of hooks that can help you gain complete control over your app's wallet management.
+    Navigate into your new site’s directory and start it up.
 
-## Installation
+    ```shell
+    cd my-gatsby-site/
+    npm run develop
+    ```
 
-### LI.FI Widget
+3.  **Open the code and start customizing!**
 
-LI.FI Widget is available as an [npm package](https://www.npmjs.com/package/@lifi/widget).
+    Your site is now running at http://localhost:8000!
 
-**npm:**
+    Edit `src/pages/index.tsx` to see your site update in real-time!
 
-```sh
-npm install @lifi/widget
-```
+4.  **Learn more**
 
-**yarn:**
+    - [Documentation](https://www.gatsbyjs.com/docs/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
 
-```sh
-yarn add @lifi/widget
-```
+    - [Tutorials](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
 
-### LI.FI Wallet Management
+    - [Guides](https://www.gatsbyjs.com/tutorial/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
 
-LI.FI Wallet Management is available as an [npm package](https://www.npmjs.com/package/@lifi/wallet-management).
+    - [API Reference](https://www.gatsbyjs.com/docs/api-reference/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
 
-**npm:**
+    - [Plugin Library](https://www.gatsbyjs.com/plugins?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
 
-```sh
-npm install @lifi/wallet-management
-```
+    - [Cheat Sheet](https://www.gatsbyjs.com/docs/cheat-sheet/?utm_source=starter&utm_medium=readme&utm_campaign=minimal-starter-ts)
 
-**yarn:**
+## 🚀 Quick start (Gatsby Cloud)
 
-```sh
-yarn add @lifi/wallet-management
-```
+Deploy this starter with one click on [Gatsby Cloud](https://www.gatsbyjs.com/cloud/):
 
-## Getting started with LI.FI Widget
-
-Here is an example of a basic app using LI.FI Widget:
-
-```tsx
-import { LiFiWidget, WidgetConfig } from '@lifi/widget';
-
-const widgetConfig: WidgetConfig = {
-  containerStyle: {
-    border: '1px solid rgb(234, 234, 234)',
-    borderRadius: '16px',
-  },
-};
-
-export const WidgetPage = () => {
-  return (
-    <LiFiWidget integrator="Your dApp/company name" config={widgetConfig} />
-  );
-};
-```
-
-## Examples
-
-Visit our [playground](https://playground.li.fi) to see how you can customize your [LI.FI Widget](https://www.npmjs.com/package/@lifi/widget) experience.
-
-## Documentation
-
-[LI.FI Widget Documentation](https://docs.li.fi/integrate-li.fi-widget/li.fi-widget-overview)
-
-## Changelog
-
-The [changelog](/CHANGELOG.md) is regularly updated to reflect what's changed in each new release.
-
-## License
-
-This project is licensed under the terms of the
-[Apache-2.0](/LICENSE.md).
+[<img src="https://www.gatsbyjs.com/deploynow.svg" alt="Deploy to Gatsby Cloud">](https://www.gatsbyjs.com/dashboard/deploynow?url=https://github.com/gatsbyjs/gatsby-starter-minimal-ts)
